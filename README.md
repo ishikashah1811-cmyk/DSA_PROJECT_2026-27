@@ -15,10 +15,8 @@ engine/                     DSA core (depends only on Post; never imports api/ o
     models.py               Post
     base.py                 AnalyzerModule, AnalysisResult
     text/                   preprocessor.py, shingler.py                         (Person 1)
-    dedupe/                 minhash.py, lsh.py, brute_force.py, exact.py,
-                            similarity.py                                        (Person 1)
-                            union_find.py, clusterer.py                          (Person 2)
-                            analyzer.py                                          (Person 1/2)
+    dedupe/                 minhash.py, lsh.py, brute_force.py, exact.py, similarity.py,
+                            union_find.py, clusterer.py, analyzer.py             (Person 1)
     hashtags/               trie.py, max_heap.py, ranker.py, analyzer.py         (Person 3)
     service.py              AnalyticsService facade                              (Person 2)
   tests/                    pytest unit tests
