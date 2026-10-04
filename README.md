@@ -41,10 +41,18 @@ pytest
 
 ```bash
 cd engine
-python benchmarks/run_benchmarks.py --sizes 500 1000 2000 5000   # LSH vs brute-force scaling
-python benchmarks/run_benchmarks.py --sizes 2000 --sweep-br      # every (b, r) from the plan
+python benchmarks/run_benchmarks.py --sizes 500 1000 2000 5000       # LSH vs brute-force scaling
+python benchmarks/run_benchmarks.py --sizes 2000 --sweep br          # every (b, r) from the plan
+python benchmarks/run_benchmarks.py --sizes 2000 --sweep shingle     # char 4/5/6 vs word 2/3 (pick by label_f1)
+python benchmarks/run_benchmarks.py --sizes 2000 --sweep threshold   # t in --thresholds
+python benchmarks/run_benchmarks.py --verify fast --check-collisions # signature-estimate verify; 32-bit ID check
 python benchmarks/run_benchmarks.py --help
 ```
+
+Each row reports two kinds of accuracy:
+
+- `recall` and `precision` compare LSH against the exact brute-force pairs. In `exact` verify mode precision is 1.0 by construction.
+- `label_precision`, `label_recall` and `label_f1` compare the whole pipeline against the planted duplicate pairs from the data generator. This is the measure for choosing the shingle type.
 
 Results are written to `engine/benchmarks/results/module1.csv`, which is gitignored. Every timing column is labeled with the implementation it uses: `brute_ms` is pure Python and `brute_sig_ms` is numpy. Until Person 2's SyntheticDataGenerator exists, the input data comes from `benchmarks/toy_data.py`.
 
