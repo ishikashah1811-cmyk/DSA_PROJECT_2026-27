@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Environment
+.env
+
+# Data: real exports never go into the repo (plan, Section 3 / 5.4)
+data/raw/*
+!data/raw/.gitkeep
+*.db
+*.sqlite3
+
+# Benchmark output (regenerate with engine/benchmarks/run_benchmarks.py)
+engine/benchmarks/results/*
+!engine/benchmarks/results/.gitkeep
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# OS / editors
+.DS_Store
+.vscode/
+.idea/
