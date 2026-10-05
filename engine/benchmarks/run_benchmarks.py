@@ -53,6 +53,7 @@ class Corpus:
 
 @dataclass
 class Row:
+    seed: int
     n: int
     n_compared: int  # after exact-duplicate pre-pass and short-caption flagging
     n_flagged: int
@@ -125,7 +126,7 @@ def main() -> None:
     p.add_argument("--sizes", type=int, nargs="+", default=[500, 1000, 2000, 5000])
     p.add_argument("--sweep", choices=["none", "br", "shingle", "threshold"], default="none")
     p.add_argument("--shingle", choices=["char", "word"], default="char")
-    p.add_argument("--k", type=int, default=None, help="shingle size (default: 5 for char, 2 for word)")
+    p.add_argument("--k", type=int, default=None, help="shingle size (default: 4 for char, 2 for word)")
     p.add_argument("--bands", type=int, default=32)
     p.add_argument("--rows", type=int, default=4)
     p.add_argument("--threshold", type=float, default=0.6)
@@ -206,6 +207,7 @@ def main() -> None:
 
                     results.append(
                         Row(
+                            seed=args.seed,
                             n=n,
                             n_compared=m,
                             n_flagged=corpus.n_flagged,

@@ -37,7 +37,7 @@ def main() -> None:
     args = p.parse_args()
 
     data = SyntheticDataGenerator(args.seed).generate(args.n)
-    corpus, _ = prepare(data.captions, make_shingler("char", 5), 10, keep_strings=False)
+    corpus, _ = prepare(data.captions, make_shingler("char"), 10, keep_strings=False)
     pairs = BruteForceDetector(args.min_sim).find_pairs(corpus.sets)
     print(f"{len(pairs)} pairs with Jaccard >= {args.min_sim} among {len(corpus.sets)} documents", file=sys.stderr)
 

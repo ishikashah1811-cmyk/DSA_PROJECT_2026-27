@@ -12,6 +12,10 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
 DEFAULT_MIN_SHINGLES = 10
+# Character 4-grams had the best F1 against planted duplicates in the Module 1
+# shingle x threshold sweep (docs/benchmarks/RESULTS.md); the plan started at 5.
+DEFAULT_CHAR_K = 4
+DEFAULT_WORD_K = 2
 
 
 def stable_hash32(s: str) -> int:
@@ -35,7 +39,7 @@ class Shingler(ABC):
 class CharShingler(Shingler):
     """Character k-grams over the normalized text (spaces included)."""
 
-    def __init__(self, k: int = 5) -> None:
+    def __init__(self, k: int = DEFAULT_CHAR_K) -> None:
         if k < 1:
             raise ValueError("k must be >= 1")
         self.k = k
@@ -49,7 +53,7 @@ class CharShingler(Shingler):
 class WordShingler(Shingler):
     """Word k-grams, words joined by a single space."""
 
-    def __init__(self, k: int = 2) -> None:
+    def __init__(self, k: int = DEFAULT_WORD_K) -> None:
         if k < 1:
             raise ValueError("k must be >= 1")
         self.k = k
@@ -63,9 +67,9 @@ class WordShingler(Shingler):
 
 def make_shingler(kind: str = "char", k: int | None = None) -> Shingler:
     if kind == "char":
-        return CharShingler(5 if k is None else k)
+        return CharShingler(DEFAULT_CHAR_K if k is None else k)
     if kind == "word":
-        return WordShingler(2 if k is None else k)
+        return WordShingler(DEFAULT_WORD_K if k is None else k)
     raise ValueError(f"unknown shingle type {kind!r}; expected 'char' or 'word'")
 
 

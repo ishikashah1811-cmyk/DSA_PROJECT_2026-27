@@ -154,6 +154,40 @@ def fig_bar(labels: list[str], values: list[float], title: str, ylabel: str, out
     plt.close(fig)
 
 
+def best_shingle_settings(rows: list[dict]) -> list[dict]:
+    """Per shingle type, the threshold with the best mean F1 over seeds."""
+    groups: dict[tuple[str, float], list[float]] = defaultdict(list)
+    for r in rows:
+        groups[(r["shingle"], float(r["threshold"]))].append(float(r["label_f1"]))
+    best: dict[str, dict] = {}
+    for (shingle, t), f1s in groups.items():
+        mean = sum(f1s) / len(f1s)
+        if shingle not in best or mean > best[shingle]["mean"]:
+            best[shingle] = {"shingle": shingle, "threshold": t, "mean": mean, "min": min(f1s), "max": max(f1s),
+                             "seeds": len(f1s)}
+    order = [r["shingle"] for r in rows]
+    return sorted(best.values(), key=lambda b: order.index(b["shingle"]))
+
+
+def fig_shingle(rows: list[dict], out: Path) -> None:
+    best = best_shingle_settings(rows)
+    fig, ax = plt.subplots(figsize=(7.0, 3.8))
+    xs = [b["shingle"] for b in best]
+    means = [b["mean"] for b in best]
+    err = [[m - b["min"] for m, b in zip(means, best)], [b["max"] - m for m, b in zip(means, best)]]
+    bars = ax.bar(xs, means, color=SERIES[0], width=0.6, edgecolor=SURFACE, linewidth=2)
+    ax.errorbar(xs, means, yerr=err, fmt="none", ecolor=TEXT_2, elinewidth=1, capsize=4)
+    for bar, b in zip(bars, best):
+        ax.annotate(f"{b['mean']:.3f}\nt={b['threshold']:g}", (bar.get_x() + bar.get_width() / 2, b["max"]),
+                    xytext=(0, 4), textcoords="offset points", ha="center", color=TEXT, fontsize=9)
+    ax.set_ylim(0, 1.15)
+    ax.set_ylabel(f"F1 (mean of {best[0]['seeds']} seeds, range bars)")
+    ax.set_title("Shingle type at its best threshold: F1 against planted duplicates")
+    ax.grid(axis="x", visible=False)
+    fig.savefig(out)
+    plt.close(fig)
+
+
 def fig_threshold(rows: list[dict], out: Path) -> None:
     fig, ax = plt.subplots(figsize=(7.0, 3.8))
     ts = [float(r["threshold"]) for r in rows]
@@ -162,7 +196,7 @@ def fig_threshold(rows: list[dict], out: Path) -> None:
     line(ax, ts, [float(r["label_f1"]) for r in rows], 2, "F1", "F1")
     ax.set_xlabel("Verification threshold t")
     ax.set_ylabel("Score vs planted duplicates")
-    ax.set_title("Choosing the threshold t (char 5-grams, b=32, r=4)")
+    ax.set_title(f"Choosing the threshold t ({rows[0]['shingle']} shingles, b=32, r=4)")
     ax.set_ylim(0, 1.05)
     ax.set_xlim(min(ts) - 0.03, max(ts) + 0.1)
     legend_below(ax, 3)
@@ -178,9 +212,7 @@ def main() -> None:
     fig_runtime(read(d / "scaling.csv"), d / "runtime.png")
     fig_candidates(read(d / "scaling.csv"), d / "candidates.png")
     fig_lsh_curve(read(d / "lsh_curve.csv"), d / "lsh_curve.png")
-    sh = read(d / "sweep_shingle.csv")
-    fig_bar([r["shingle"] for r in sh], [float(r["label_f1"]) for r in sh],
-            "Shingle type: F1 against planted duplicates", "F1", d / "shingle_f1.png")
+    fig_shingle(read(d / "sweep_shingle.csv"), d / "shingle_f1.png")
     br = read(d / "sweep_br.csv")
     fig_bar([f"b={r['bands']}, r={r['rows']}" for r in br], [float(r["recall"]) for r in br],
             "(b, r): recall against brute force at t = 0.6", "Recall", d / "br_recall.png")

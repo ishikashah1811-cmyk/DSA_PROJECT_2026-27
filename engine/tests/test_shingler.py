@@ -40,7 +40,7 @@ def test_ids_identical_across_processes():
 
 
 def test_make_shingler():
-    assert isinstance(make_shingler("char"), CharShingler) and make_shingler("char").k == 5
+    assert isinstance(make_shingler("char"), CharShingler) and make_shingler("char").k == 4
     assert isinstance(make_shingler("word", 3), WordShingler) and make_shingler("word", 3).k == 3
     with pytest.raises(ValueError):
         make_shingler("nope")

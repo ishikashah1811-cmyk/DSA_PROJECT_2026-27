@@ -21,7 +21,7 @@ from .similarity import SimilarPair
 
 DEFAULT_PARAMS: dict[str, Any] = {
     "shingle_type": "char",
-    "k": 5,
+    "k": 4,  # chosen by the shingle x threshold sweep (docs/benchmarks/RESULTS.md)
     "num_hashes": 128,
     "bands": 32,
     "rows": 4,
