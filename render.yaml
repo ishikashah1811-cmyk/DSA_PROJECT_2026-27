@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: contentiq-api
+    runtime: python
+    buildCommand: pip install -r api/requirements.txt && pip install ./engine
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DATABASE_URL
+        value: sqlite:///./contentiq.db
+      - key: SEED_SAMPLE
+        value: "true"
+      - key: CORS_ORIGINS
+        sync: false  # set to the dashboard's Vercel URL in the Render dashboard

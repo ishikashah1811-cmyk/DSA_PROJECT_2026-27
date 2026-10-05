@@ -1,3 +1,8 @@
-"""Module 2: hashtag intelligence and ranking.
+"""Module 2: hashtag intelligence and ranking."""
 
-Owner: Person 3. Not implemented yet (plan, Section 6)."""
+from .analyzer import HashtagAnalyzer
+from .max_heap import MaxHeap
+from .ranker import HashtagRanker, TagStats
+from .trie import HashtagTrie
+
+__all__ = ["HashtagAnalyzer", "HashtagRanker", "HashtagTrie", "MaxHeap", "TagStats"]
