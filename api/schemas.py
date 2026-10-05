@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Health(BaseModel):
@@ -31,6 +31,13 @@ class PostOut(BaseModel):
 
 
 class DuplicateRunRequest(BaseModel):
+    # The example shown in /docs. Without it, Swagger fills each field with its minimum
+    # (bucket_cap = 2), which would skip almost every LSH bucket.
+    model_config = ConfigDict(json_schema_extra={"examples": [{
+        "shingle_type": "char", "k": 4, "num_hashes": 128, "bands": 32, "rows": 4, "threshold": 0.6,
+        "min_shingles": 10, "verify": "exact", "bucket_cap": None, "seed": 42,
+    }]})
+
     shingle_type: Literal["char", "word"] = "char"
     k: int = Field(4, ge=1, le=20)
     num_hashes: int = Field(128, ge=1, le=1024)
@@ -39,7 +46,7 @@ class DuplicateRunRequest(BaseModel):
     threshold: float = Field(0.6, ge=0.0, le=1.0)
     min_shingles: int = Field(10, ge=0)
     verify: Literal["exact", "fast"] = "exact"
-    bucket_cap: int | None = Field(None, ge=2)
+    bucket_cap: int | None = Field(None, ge=2, description="Skip LSH buckets larger than this; null = no cap")
     seed: int = 42
 
 
