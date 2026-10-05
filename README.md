@@ -14,32 +14,44 @@ engine/                     DSA core (depends only on Post; never imports api/ o
   contentiq_engine/
     models.py               Post
     base.py                 AnalyzerModule, AnalysisResult
-    text/                   preprocessor.py, shingler.py                         (Person 1)
+    text/                   preprocessor.py, shingler.py                         Module 1
     dedupe/                 minhash.py, lsh.py, brute_force.py, exact.py, similarity.py,
-                            union_find.py, clusterer.py, analyzer.py             (Person 1)
-    hashtags/               trie.py, max_heap.py, ranker.py, analyzer.py         (Person 3)
-    service.py              AnalyticsService facade                              (Person 2)
+                            union_find.py, clusterer.py, analyzer.py             Module 1
+    hashtags/               trie.py, max_heap.py, ranker.py, analyzer.py         Module 2
+    service.py              AnalyticsService facade
   tests/                    pytest unit tests
   benchmarks/               synthetic.py, run_benchmarks.py, lsh_curve.py, evaluation.py,
-                            plot_results.py, report.py                           (Person 1)
-api/                        FastAPI backend                                      (Person 2)
+                            plot_results.py, report.py
+api/                        FastAPI backend: main.py, routes/, ingest/ (CSV and Instagram
+                            adapters), db.py (SQLite), tests/          (see api/README.md)
 web/                        Next.js dashboard                                    (Person 3)
-docs/benchmarks/            Module 1 results: CSVs, figures, RESULTS.md (committed)
+docs/benchmarks/            Module 1 results: CSVs, figures, RESULTS.md
 data/sample/                sample_posts.csv: 300 synthetic posts (committed)
 data/raw/                   real exports (gitignored)
 ```
 
-## Engine: setup and tests
+## Setup and tests
 
 ```bash
-cd engine
-pip install -e ".[dev]"
-pytest
+pip install -e "engine[dev]" -r api/requirements.txt httpx
+cd engine && pytest          # engine: data structures and both modules
+cd .. && pytest api/tests    # API contract tests
 ```
+
+GitHub Actions runs both suites on every pull request (`.github/workflows/tests.yml`).
+
+## Run the backend
+
+```bash
+cp .env.example .env
+uvicorn api.main:app --reload --env-file .env    # http://localhost:8000/docs
+```
+
+Endpoints, import formats and deployment are described in [`api/README.md`](api/README.md).
 
 ## Module 1 benchmark
 
-Reproduce every number and figure in [`docs/benchmarks/RESULTS.md`](docs/benchmarks/RESULTS.md) with one command (about 10 minutes; needs `pip install matplotlib`):
+Reproduce every number and figure in [`docs/benchmarks/RESULTS.md`](docs/benchmarks/RESULTS.md) with one command (about 16 minutes on 4 cores; needs `pip install matplotlib`):
 
 ```bash
 cd engine
