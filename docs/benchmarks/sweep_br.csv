@@ -1,0 +1,5 @@
+seed,n,n_compared,n_flagged,n_exact_groups,shingle,min_shingles,bands,rows,threshold,verify,prep_ms,signature_ms,lsh_ms,verify_ms,lsh_total_ms,n_candidates,all_pairs,lsh_pairs,brute_ms,brute_sig_ms,brute_pairs,recall,precision,label_precision,label_recall,label_f1,id_collisions,max_jaccard_diff
+42,2000,1985,0,14,char4,10,8,16,0.6,exact,417.2,378.6,28.9,1.7,409.2,112,1969120,112,13393.7,477.3,355,0.3155,1.0,1.0,0.4136,0.5851,,
+42,2000,1985,0,14,char4,10,16,8,0.6,exact,417.2,378.6,69.7,6.9,455.2,316,1969120,262,13393.7,477.3,355,0.738,1.0,0.9834,0.8034,0.8843,,
+42,2000,1985,0,14,char4,10,32,4,0.6,exact,417.2,378.6,84.9,179.7,643.2,10983,1969120,354,13393.7,477.3,355,0.9972,1.0,0.9539,0.9831,0.9683,,
+42,2000,1985,0,14,char4,10,64,2,0.6,exact,417.2,378.6,454.1,3705.3,4538.0,365584,1969120,355,13393.7,477.3,355,1.0,1.0,0.9508,0.9831,0.9667,,

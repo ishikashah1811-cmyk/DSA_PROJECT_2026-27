@@ -73,7 +73,22 @@ def line(ax, xs, ys, i, label, end_label: str | None = None, **kw):
     ax.plot(xs, ys, color=SERIES[i], lw=1.5, marker=MARKERS[i], ms=6, mec=SURFACE, mew=1.5, label=label, **kw)
     if end_label:
         ax.annotate(end_label, (xs[-1], ys[-1]), xytext=(6, 0), textcoords="offset points", va="center",
-                    color=TEXT, fontsize=9)
+                    color=TEXT, fontsize=9, gid="end_label")
+
+
+def spread_end_labels(ax, min_gap_pt: float = 12) -> None:
+    """Nudge end-of-line labels vertically so that none overlap."""
+    fig = ax.figure
+    fig.canvas.draw()
+    labels = [t for t in ax.texts if t.get_gid() == "end_label"]
+    to_pt = 72 / fig.dpi
+    ys = [ax.transData.transform(t.xy)[1] * to_pt for t in labels]
+    order = sorted(range(len(labels)), key=lambda i: ys[i])
+    placed: list[float] = []
+    for i in order:
+        y = ys[i] if not placed else max(ys[i], placed[-1] + min_gap_pt)
+        placed.append(y)
+        labels[i].set_position((6, y - ys[i]))
 
 
 def fig_runtime(rows: list[dict], out: Path) -> None:
@@ -91,6 +106,7 @@ def fig_runtime(rows: list[dict], out: Path) -> None:
     ax.minorticks_off()
     legend_below(ax, 2)
     ax.set_xlim(right=max(ns) * 3)
+    spread_end_labels(ax)
     fig.savefig(out)
     plt.close(fig)
 
@@ -110,6 +126,7 @@ def fig_candidates(rows: list[dict], out: Path) -> None:
     ax.minorticks_off()
     legend_below(ax, 3)
     ax.set_xlim(right=max(ns) * 2.5)
+    spread_end_labels(ax)
     fig.savefig(out)
     plt.close(fig)
 
@@ -200,6 +217,7 @@ def fig_threshold(rows: list[dict], out: Path) -> None:
     ax.set_ylim(0, 1.05)
     ax.set_xlim(min(ts) - 0.03, max(ts) + 0.1)
     legend_below(ax, 3)
+    spread_end_labels(ax)
     fig.savefig(out)
     plt.close(fig)
 
