@@ -28,7 +28,7 @@ ENGINE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ENGINE_DIR))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import toy_data  # noqa: E402
+from synthetic import SyntheticDataGenerator, read_captions  # noqa: E402
 from evaluation import expand_to_captions, label_scores, ordered, pair_scores  # noqa: E402
 
 from contentiq_engine.dedupe import BruteForceDetector, LSHIndex, MinHasher, group_exact_duplicates, jaccard  # noqa: E402
@@ -135,8 +135,9 @@ def main() -> None:
     p.add_argument("--bucket-cap", type=int, default=None)
     p.add_argument("--brute-max-n", type=int, default=5000, help="skip brute force above this n (it is O(n^2))")
     p.add_argument("--check-collisions", action="store_true", help="compare Jaccard on 32-bit IDs vs string shingles")
-    p.add_argument("--dup-fraction", type=float, default=0.1)
-    p.add_argument("--max-edits", type=int, default=3)
+    p.add_argument("--dup-fraction", type=float, default=0.15)
+    p.add_argument("--max-edit-rate", type=float, default=0.3)
+    p.add_argument("--base-captions", type=Path, default=None, help="real captions (CSV with a caption column, or .txt)")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--out", type=Path, default=ENGINE_DIR / "benchmarks" / "results" / "module1.csv")
     args = p.parse_args()
@@ -145,9 +146,11 @@ def main() -> None:
     br_cfgs = BR_CONFIGS if args.sweep == "br" else [(args.bands, args.rows)]
     thresholds = args.thresholds if args.sweep == "threshold" else [args.threshold]
 
+    base = read_captions(args.base_captions) if args.base_captions else None
     results: list[Row] = []
     for n in args.sizes:
-        captions, planted = toy_data.generate(n, args.dup_fraction, args.max_edits, seed=args.seed)
+        data = SyntheticDataGenerator(args.seed, base).generate(n, args.dup_fraction, args.max_edit_rate)
+        captions, planted = data.captions, data.planted_pairs
         run_brute = n <= args.brute_max_n
         for kind, k in shingle_cfgs:
             shingler = make_shingler(kind, k)
